@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Поиск произведения по голосу</title>
     <style>
@@ -80,10 +80,36 @@
             border-radius: 10px;
             margin-bottom: 10px;
             border-left: 4px solid #2ed573;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
         }
-        .result-item h3 { margin: 0 0 8px 0; color: #7bed9f; font-size: 18px; }
+        .prog-badge {
+            background: linear-gradient(135deg, #ffd32a, #ff9f1a);
+            color: #1e3c72;
+            font-weight: bold;
+            font-size: 22px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            min-width: 65px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(255, 211, 42, 0.3);
+            flex-shrink: 0;
+            line-height: 1;
+        }
+        .prog-badge small {
+            display: block;
+            font-size: 10px;
+            font-weight: normal;
+            margin-bottom: 3px;
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+        .result-content { flex: 1; min-width: 0; }
+        .result-item h3 { margin: 0 0 8px 0; color: #7bed9f; font-size: 17px; word-wrap: break-word; line-height: 1.3; }
         .result-item p { margin: 4px 0; font-size: 14px; opacity: 0.95; }
-        .result-item .prog { color: #ffd32a; font-weight: bold; }
+        .result-item .prog-name { color: #ffd32a; font-size: 13px; opacity: 0.85; }
+        .result-item .track-num { color: #fff; font-weight: bold; font-size: 15px; }
         .warning { color: #ff6b81; font-size: 14px; margin-top: 10px; }
         .stats { font-size: 12px; opacity: 0.7; margin-top: 15px; }
     </style>
@@ -107,9 +133,6 @@
 </div>
 
 <script>
-    // === 1. ВАШИ ДАННЫЕ ===
-    // ВАЖНО: обратная кавычка в "VOCE `E NOTTE" заменена на обычный апостроф "VOCE 'E NOTTE",
-    // иначе она сломает template literal в JavaScript.
     const rawData = `№ 1. НЕАПОЛИТАНСКИЕ И ИСПАНСКИЕ ПЕСНИ И МУЗЫКА
 1. Евгений Мисаилов
 ОРКЕСТРОВАЯ ФАНТАЗИЯ на мелодии
@@ -855,11 +878,11 @@ Cолист - тенор
 ОРКЕСТРОВАЯ ФАНТАЗИЯ "СДЕЛАНО В СССР"
 Исполняет оркестр`;
 
-    // === 2. УМНЫЙ ПАРСЕР ===
+    // === ПАРСЕР ===
     const index = [];
     const lines = rawData.split('\n');
-    let currentProg = "Программа 1";
-    let currentProgNum = "1";
+    let currentProgName = "";
+    let currentProgNum = "";
     let currentTrackNum = "";
     let currentTrackText = "";
     let waitingForFirstTrack = false;
@@ -867,7 +890,7 @@ Cолист - тенор
     function saveTrack() {
         if (currentTrackNum) {
             index.push({
-                prog: currentProg,
+                progName: currentProgName,
                 progNum: currentProgNum,
                 num: currentTrackNum,
                 text: currentTrackText.trim()
@@ -879,19 +902,17 @@ Cолист - тенор
         const trimmed = line.trim();
         if (!trimmed) return;
 
-        // Заголовок программы: "№ 1. НАЗВАНИЕ" или "№ 15. "Сделано в СССР"(...)"
         const progMatch = trimmed.match(/^№\s*(\d+)\.\s*(.*)/);
         if (progMatch) {
             saveTrack();
             currentProgNum = progMatch[1];
-            currentProg = `Программа №${progMatch[1]}: ${progMatch[2]}`;
+            currentProgName = progMatch[2];
             currentTrackNum = "";
             currentTrackText = "";
             waitingForFirstTrack = true;
             return;
         }
 
-        // Трек: "1. Автор" или "12. Название"
         const trackMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
         if (trackMatch) {
             saveTrack();
@@ -901,18 +922,17 @@ Cолист - тенор
             return;
         }
 
-        // Продолжение текста
         if (waitingForFirstTrack) {
-            currentProg += " (" + trimmed + ")";
+            // пропускаем "Аранжировки..." между заголовком и первым треком
         } else if (currentTrackNum) {
             currentTrackText += " " + trimmed;
         }
     });
     saveTrack();
 
-    document.getElementById('stats').textContent = `Загружено программ: 15 | Всего треков: ${index.length}`;
+    document.getElementById('stats').textContent = `Загружено программ: 15 | Всего произведений: ${index.length}`;
 
-    // === 3. НОРМАЛИЗАЦИЯ И ПОИСК ===
+    // === ПОИСК ===
     function normalize(str) {
         return str
             .toLowerCase()
@@ -925,61 +945,33 @@ Cолист - тенор
     function search(query) {
         const q = normalize(query);
         if (!q || q.length < 2) return [];
-        
-        return index.filter(item => {
-            const text = normalize(item.text);
-            return text.includes(q);
-        });
+        return index.filter(item => normalize(item.text).includes(q));
     }
 
-    // Слова-исключения, которые не должны попадать в название
-    const STOP_WORDS = ['исполняет', 'оркестр', 'солистка', 'солист', 'дуэт', 'трио',
-        'ансамбль', 'музыка', 'слова', 'муз', 'сл', 'рус', 'текст', 'пер',
-        'меццо', 'сопрано', 'баритон', 'тенор', 'бас', 'эстрадный', 'эстрадная',
-        'певец', 'певица', 'голосом', 'высоким', 'низким', 'скрипка', 'соло',
-        'рояль', 'оперы', 'оперетты', 'мюзикла', 'сюиты', 'цикла', 'к/ф',
-        'из', 'и', 'в', 'на', 'к', 'о', 'а'];
-
+    // === ИЗВЛЕЧЕНИЕ ПОЛНОГО НАЗВАНИЯ ===
     function extractTitle(text) {
-        // 1. Сначала ищем текст в кавычках (любого типа) — это часто и есть название
-        const quotedMatch = text.match(/["«]([^"»]+)["»]/);
-        
-        // 2. Ищем все последовательности ЗАГЛАВНЫХ букв (кириллица + латиница)
-        const upperMatches = text.match(/[А-ЯA-ZЁ][А-ЯA-ZЁ0-9']*(?:\s+[А-ЯA-ZЁ0-9',\-]+)*/g) || [];
-        
-        // Фильтруем стоп-слова и короткие совпадения
-        const filtered = upperMatches
-            .map(m => m.trim())
-            .filter(m => {
-                const words = m.toLowerCase().split(/\s+/);
-                // Отбрасываем, если все слова — стоп-слова
-                return !words.every(w => STOP_WORDS.includes(w.replace(/[^а-яa-z]/g, '')));
-            })
-            .filter(m => m.length > 3);
+        // 1. Отсекаем хвост — указание исполнителя
+        let cleaned = text.replace(
+            /\s*(Солист[ка]?\s*[–\-].*|Исполняет.*|Исполняют.*|Дуэт\s*[–\-].*|\bОркестр\b.*|Скрипка.*|Соло\s*[–\-].*)$/i, ''
+        );
 
-        // Если нашли кавычки и внутри них заглавные буквы — берём их
-        if (quotedMatch) {
-            const inside = quotedMatch[1].trim();
-            // Проверяем, есть ли там заглавные буквы
-            if (/[А-ЯA-ZЁ]{2,}/.test(inside)) {
-                return inside;
-            }
+        // 2. Находим начало заглавного названия
+        const firstUpper = cleaned.search(/[А-ЯA-ZЁ]{2,}/);
+        if (firstUpper > 0) {
+            cleaned = cleaned.substring(firstUpper);
         }
 
-        // Иначе берём самое длинное подходящее совпадение
-        if (filtered.length > 0) {
-            filtered.sort((a, b) => b.length - a.length);
-            return filtered[0];
-        }
+        // 3. Чистим пробелы
+        cleaned = cleaned.replace(/\s+/g, ' ').trim();
 
-        // Фолбэк: первые 60 символов
-        return text.substring(0, 60) + (text.length > 60 ? '...' : '');
+        return cleaned || text.substring(0, 60);
     }
 
+    // === ОТРИСОВКА РЕЗУЛЬТАТОВ ===
     function renderResults(results, query) {
         const resultsDiv = document.getElementById('results');
         resultsDiv.innerHTML = '';
-        
+
         if (!query || query.length < 2) return;
 
         if (results.length === 0) {
@@ -992,15 +984,21 @@ Cолист - тенор
             const item = document.createElement('div');
             item.className = 'result-item';
             item.innerHTML = `
-                <h3>🎼 ${prettyTitle}</h3>
-                <p class="prog">📁 ${res.prog}</p>
-                <p>🎵 <strong>Трек № ${res.num}</strong></p>
+                <div class="prog-badge">
+                    <small>ПРОГРАММА</small>
+                    № ${res.progNum}
+                </div>
+                <div class="result-content">
+                    <h3>🎼 ${prettyTitle}</h3>
+                    <p class="prog-name">📁 ${res.progName}</p>
+                    <p class="track-num">№ ${res.num}</p>
+                </div>
             `;
             resultsDiv.appendChild(item);
         });
     }
 
-    // === 4. ГОЛОСОВОЙ ВВОД ===
+    // === ГОЛОСОВОЙ ВВОД ===
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const micBtn = document.getElementById('micBtn');
     const status = document.getElementById('status');
@@ -1009,8 +1007,10 @@ Cолист - тенор
     const warning = document.getElementById('warning');
 
     let recognition;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isSecure = window.isSecureContext;
 
-    if (SpeechRecognition) {
+    if (SpeechRecognition && isSecure) {
         recognition = new SpeechRecognition();
         recognition.lang = 'ru-RU';
         recognition.interimResults = false;
@@ -1052,11 +1052,24 @@ Cолист - тенор
             }
         });
     } else {
-        micBtn.style.display = 'none';
-        warning.textContent = '⚠️ Ваш браузер не поддерживает голосовой ввод. Используйте текстовое поле или откройте сайт в Google Chrome.';
+        micBtn.style.opacity = '0.4';
+        micBtn.style.cursor = 'not-allowed';
+        let reason = '';
+        if (!isSecure) {
+            reason = '⚠️ Голосовой ввод работает только по HTTPS.<br><br>';
+        } else if (isIOS) {
+            reason = '⚠️ Safari не поддерживает голосовой ввод в браузере.<br><br>';
+        }
+        warning.innerHTML = `
+            ${reason}
+            <div style="background: rgba(46, 213, 115, 0.15); border: 1px solid #2ed573;
+                        padding: 12px; border-radius: 10px; margin-top: 10px; text-align: left;">
+                <strong style="color: #7bed9f;">📱 Диктовка на iPhone:</strong><br>
+                Нажмите на текстовое поле 👇 → на клавиатуре нажмите <strong>🎤</strong> → говорите.
+            </div>
+        `;
     }
 
-    // Поиск по ручному вводу
     textInput.addEventListener('input', (e) => {
         const val = e.target.value;
         recognizedText.textContent = val ? `"${val}"` : 'Здесь появится распознанный текст...';
