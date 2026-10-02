@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск произведения</title>
+    <title>Поиск произведения...</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -18,7 +22,13 @@
             margin: 0;
             padding: 15px;
         }
-        h1 { margin: 10px 0; text-align: center; font-size: 22px; }
+
+        h1 {
+            margin: 10px 0;
+            text-align: center;
+            font-size: 22px;
+        }
+
         .container {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -35,27 +45,32 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            background: rgba(0,0,0,0.2);
+            background: rgba(0, 0, 0, 0.2);
             border-radius: 12px;
             padding: 5px;
         }
+
         .tab {
             flex: 1;
             padding: 12px;
             border: none;
             background: transparent;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255, 255, 255, 0.6);
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             border-radius: 8px;
             transition: all 0.2s;
         }
+
         .tab.active {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             color: #fff;
         }
-        .tab:hover { color: #fff; }
+
+        .tab:hover {
+            color: #fff;
+        }
 
         /* Вкладка поиска */
         .mic-btn {
@@ -72,19 +87,40 @@
             margin: 15px auto;
             display: block;
         }
-        .mic-btn:hover { transform: scale(1.05); }
+
+        .mic-btn:hover {
+            transform: scale(1.05);
+        }
+
         .mic-btn.listening {
             background: #2ed573;
             animation: pulse 1.5s infinite;
         }
+
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(46, 213, 115, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(46, 213, 115, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(46, 213, 115, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(46, 213, 115, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(46, 213, 115, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(46, 213, 115, 0);
+            }
         }
-        .status { font-size: 16px; margin-bottom: 12px; min-height: 22px; color: #ffd32a; text-align: center; }
+
+        .status {
+            font-size: 16px;
+            margin-bottom: 12px;
+            min-height: 22px;
+            color: #ffd32a;
+            text-align: center;
+        }
+
         .recognized-text {
-            background: rgba(0,0,0,0.2);
+            background: rgba(0, 0, 0, 0.2);
             padding: 10px;
             border-radius: 10px;
             margin-bottom: 15px;
@@ -93,21 +129,25 @@
             text-align: center;
             font-size: 14px;
         }
+
         .search-box {
             width: 100%;
             padding: 12px;
             border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             font-size: 16px;
             margin-bottom: 15px;
         }
-        .search-box::placeholder { color: rgba(255,255,255,0.6); }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
 
         /* Результаты поиска */
         .result-item {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             padding: 12px;
             border-radius: 10px;
             margin-bottom: 10px;
@@ -116,6 +156,7 @@
             gap: 12px;
             align-items: center;
         }
+
         .prog-badge {
             background: linear-gradient(135deg, #ffd32a, #ff9f1a);
             color: #1e3c72;
@@ -127,7 +168,20 @@
             text-align: center;
             flex-shrink: 0;
             line-height: 1;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
         }
+
+        .prog-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 211, 42, 0.5);
+        }
+
+        .prog-badge:active {
+            transform: scale(0.97);
+        }
+
         .prog-badge small {
             display: block;
             font-size: 9px;
@@ -136,7 +190,12 @@
             opacity: 0.8;
             letter-spacing: 1px;
         }
-        .result-content { flex: 1; min-width: 0; }
+
+        .result-content {
+            flex: 1;
+            min-width: 0;
+        }
+
         .result-item h3 {
             margin: 0 0 5px 0;
             color: #7bed9f;
@@ -144,6 +203,7 @@
             word-wrap: break-word;
             line-height: 1.3;
         }
+
         .result-item .prog-name {
             color: #ffd32a;
             font-size: 14px;
@@ -153,8 +213,20 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .warning { color: #ff6b81; font-size: 14px; margin-top: 10px; text-align: center; }
-        .stats { font-size: 12px; opacity: 0.7; margin-top: 10px; text-align: center; }
+
+        .warning {
+            color: #ff6b81;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .stats {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 10px;
+            text-align: center;
+        }
 
         /* Сетка программ */
         .programs-grid {
@@ -162,19 +234,22 @@
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 10px;
         }
+
         .program-card {
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
             padding: 15px 10px;
             cursor: pointer;
             transition: all 0.2s;
             text-align: center;
         }
+
         .program-card:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             transform: translateY(-2px);
         }
+
         .program-card .card-num {
             background: linear-gradient(135deg, #ffd32a, #ff9f1a);
             color: #1e3c72;
@@ -188,6 +263,7 @@
             justify-content: center;
             margin: 0 auto 10px;
         }
+
         .program-card .card-title {
             font-size: 12px;
             color: #fff;
@@ -205,10 +281,12 @@
             margin-bottom: 15px;
             text-align: center;
         }
+
         .tracks-header h2 {
             margin: 0 0 5px 0;
             font-size: 20px;
         }
+
         .tracks-header p {
             margin: 0;
             font-size: 13px;
@@ -216,9 +294,10 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         .back-btn {
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: #fff;
             padding: 10px 20px;
             border-radius: 10px;
@@ -227,10 +306,13 @@
             margin-bottom: 15px;
             transition: all 0.2s;
         }
-        .back-btn:hover { background: rgba(255,255,255,0.25); }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
 
         .track-item {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             padding: 12px 15px;
             border-radius: 10px;
             margin-bottom: 8px;
@@ -239,6 +321,7 @@
             gap: 12px;
             align-items: flex-start;
         }
+
         .track-num {
             background: rgba(123, 237, 159, 0.2);
             color: #7bed9f;
@@ -252,6 +335,7 @@
             justify-content: center;
             flex-shrink: 0;
         }
+
         .track-title {
             font-size: 15px;
             color: #fff;
@@ -259,49 +343,52 @@
             flex: 1;
         }
 
-        .hidden { display: none !important; }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h1>Поиск произведения</h1>
+    <div class="container">
+        <h1>Поиск произведения</h1>
 
-    <!-- Вкладки -->
-    <div class="tabs">
-        <button class="tab active" data-tab="search">🔍 Поиск</button>
-        <button class="tab" data-tab="programs">📋 Программы</button>
-    </div>
-
-    <!-- Вкладка: Поиск -->
-    <div id="tab-search">
-        <button class="mic-btn" id="micBtn"></button>
-        <div class="status" id="status">Готов к поиску</div>
-        <div class="recognized-text" id="recognizedText">Здесь появится распознанный текст...</div>
-        <input type="text" class="search-box" id="textInput" placeholder="Или введите название вручную...">
-        <div class="results" id="results"></div>
-        <div class="warning" id="warning"></div>
-        <div class="stats" id="stats"></div>
-    </div>
-
-    <!-- Вкладка: Программы -->
-    <div id="tab-programs" class="hidden">
-        <!-- Список программ -->
-        <div id="programs-list">
-            <div class="programs-grid" id="programs-grid"></div>
+        <!-- Вкладки -->
+        <div class="tabs">
+            <button class="tab active" data-tab="search">🔍 Поиск</button>
+            <button class="tab" data-tab="programs">📋 Программы</button>
         </div>
 
-        <!-- Список треков в программе -->
-        <div id="tracks-list" class="hidden">
-            <button class="back-btn" id="backBtn">← Назад к программам</button>
-            <div class="tracks-header" id="tracks-header"></div>
-            <div id="tracks-container"></div>
+        <!-- Вкладка: Поиск -->
+        <div id="tab-search">
+            <button class="mic-btn" id="micBtn"></button>
+            <div class="status" id="status">Готов к поиску</div>
+            <div class="recognized-text" id="recognizedText">Здесь появится распознанный текст...</div>
+            <input type="text" class="search-box" id="textInput" placeholder="Или введите название вручную...">
+            <div class="results" id="results"></div>
+            <div class="warning" id="warning"></div>
+            <div class="stats" id="stats"></div>
+        </div>
+
+        <!-- Вкладка: Программы -->
+        <div id="tab-programs" class="hidden">
+            <!-- Список программ -->
+            <div id="programs-list">
+                <div class="programs-grid" id="programs-grid"></div>
+            </div>
+
+            <!-- Список треков в программе -->
+            <div id="tracks-list" class="hidden">
+                <button class="back-btn" id="backBtn">← Назад к программам</button>
+                <div class="tracks-header" id="tracks-header"></div>
+                <div id="tracks-container"></div>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const rawData = `№ 1. НЕАПОЛИТАНСКИЕ И ИСПАНСКИЕ ПЕСНИ И МУЗЫКА
+    <script>
+        const rawData = `№ 1. НЕАПОЛИТАНСКИЕ И ИСПАНСКИЕ ПЕСНИ И МУЗЫКА
 1. Евгений Мисаилов
 ОРКЕСТРОВАЯ ФАНТАЗИЯ на мелодии
 из итальянского кинофильма "ПЕСНИ НА УЛИЦАХ"
@@ -1046,286 +1133,298 @@ Cолист - тенор
 ОРКЕСТРОВАЯ ФАНТАЗИЯ "СДЕЛАНО В СССР"
 Исполняет оркестр`;
 
-    // === ПАРСЕР ===
-    const index = [];
-    const programs = [];
-    const lines = rawData.split('\n');
-    let currentProgName = "";
-    let currentProgNum = "";
-    let currentTrackNum = "";
-    let currentTrackText = "";
-    let waitingForFirstTrack = false;
+        // === ПАРСЕР ===
+        const index = [];
+        const programs = [];
+        const lines = rawData.split('\n');
+        let currentProgName = "";
+        let currentProgNum = "";
+        let currentTrackNum = "";
+        let currentTrackText = "";
+        let waitingForFirstTrack = false;
 
-    function saveTrack() {
-        if (currentTrackNum) {
-            const track = {
-                progName: currentProgName,
-                progNum: currentProgNum,
-                num: currentTrackNum,
-                text: currentTrackText.trim()
-            };
-            index.push(track);
-            // Добавляем в список программы
-            const prog = programs.find(p => p.num === currentProgNum);
-            if (prog) prog.tracks.push(track);
-        }
-    }
-
-    lines.forEach(line => {
-        const trimmed = line.trim();
-        if (!trimmed) return;
-
-        const progMatch = trimmed.match(/^№\s*(\d+)\.\s*(.*)/);
-        if (progMatch) {
-            saveTrack();
-            currentProgNum = progMatch[1];
-            currentProgName = progMatch[2];
-            currentTrackNum = "";
-            currentTrackText = "";
-            waitingForFirstTrack = true;
-            programs.push({ num: currentProgNum, name: currentProgName, tracks: [] });
-            return;
+        function saveTrack() {
+            if (currentTrackNum) {
+                const track = {
+                    progName: currentProgName,
+                    progNum: currentProgNum,
+                    num: currentTrackNum,
+                    text: currentTrackText.trim()
+                };
+                index.push(track);
+                // Добавляем в список программы
+                const prog = programs.find(p => p.num === currentProgNum);
+                if (prog) prog.tracks.push(track);
+            }
         }
 
-        const trackMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
-        if (trackMatch) {
-            saveTrack();
-            currentTrackNum = trackMatch[1];
-            currentTrackText = trimmed;
-            waitingForFirstTrack = false;
-            return;
-        }
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed) return;
 
-        if (waitingForFirstTrack) {
-            // пропускаем "Аранжировки..." между заголовком и первым треком
-        } else if (currentTrackNum) {
-            currentTrackText += " " + trimmed;
-        }
-    });
-    saveTrack();
+            const progMatch = trimmed.match(/^№\s*(\d+)\.\s*(.*)/);
+            if (progMatch) {
+                saveTrack();
+                currentProgNum = progMatch[1];
+                currentProgName = progMatch[2];
+                currentTrackNum = "";
+                currentTrackText = "";
+                waitingForFirstTrack = true;
+                programs.push({num: currentProgNum, name: currentProgName, tracks: []});
+                return;
+            }
 
-    document.getElementById('stats').textContent = `Загружено программ: ${programs.length} | Всего произведений: ${index.length}`;
+            const trackMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+            if (trackMatch) {
+                saveTrack();
+                currentTrackNum = trackMatch[1];
+                currentTrackText = trimmed;
+                waitingForFirstTrack = false;
+                return;
+            }
 
-    // === ПОИСК ===
-    function normalize(str) {
-        return str
-            .toLowerCase()
-            .replace(/ё/g, 'е')
-            .replace(/[^a-zа-я0-9\s]/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-    }
-
-    function search(query) {
-        const q = normalize(query);
-        if (!q || q.length < 2) return [];
-        return index.filter(item => normalize(item.text).includes(q));
-    }
-
-    // === ИЗВЛЕЧЕНИЕ ЧИСТОГО НАЗВАНИЯ ===
-    function extractTitle(text) {
-    // 1. Отсекаем хвост — указание исполнителя
-    let cleaned = text.replace(
-        /\s*(?:Солист[ка]?\s*[–\-].*|Исполняет.*|Исполняют.*|Дуэт\s*[–\-].*|Скрипка.*|Соло\s*[–\-].*|Эстрадный\s+певец.*|Эстрадная\s+певица.*|Трио\s+(?:солистов|теноров).*|Вокальный\s+ансамбль.*)$/i, ''
-    );
-
-    // 2. Удаляем номер трека в начале
-    cleaned = cleaned.replace(/^\d+\.\s*/, '');
-
-    // 3. Находим все последовательности заглавных букв длиной 2+
-    const matches = [];
-    const regex = /[А-ЯA-ZЁ][А-ЯA-ZЁ0-9'\-]*/g;
-    let match;
-    while ((match = regex.exec(cleaned)) !== null) {
-        if (match[0].length >= 2) {
-            matches.push({ text: match[0], index: match.index });
-        }
-    }
-
-    if (matches.length === 0) {
-        return cleaned.substring(0, 60);
-    }
-
-    // 4. Берём первое совпадение, которое не является техническим обозначением
-    const technicalTerms = ['MOLL', 'DUR', 'OP', 'NR', 'NO', 'KV'];
-    let titleMatch = matches.find(m => !technicalTerms.includes(m.text.toUpperCase()));
-    
-    if (!titleMatch) {
-        titleMatch = matches[0];
-    }
-
-    // 5. Проверяем, есть ли перед названием короткое заглавное слово (1 буква) — "О,", "Я"
-    const before = cleaned.substring(0, titleMatch.index).trim();
-    const shortWordMatch = before.match(/\b([А-ЯA-ZЁ])\s*$/);
-    let startPos = titleMatch.index;
-    if (shortWordMatch) {
-        startPos = before.lastIndexOf(shortWordMatch[1]);
-    }
-
-    // 6. Берём всё от startPos до конца
-    let result = cleaned.substring(startPos);
-    result = result.replace(/\)+$/, '').trim();
-    result = result.replace(/\s+/g, ' ').trim();
-
-    return result || cleaned.substring(0, 60);
-}
-
-    // === ОТРИСОВКА РЕЗУЛЬТАТОВ ПОИСКА ===
-    function renderResults(results, query) {
-        const resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = '';
-
-        if (!query || query.length < 2) return;
-
-        if (results.length === 0) {
-            resultsDiv.innerHTML = `<div class="result-item" style="border-left-color: #ff4757;"><h3>Ничего не найдено</h3><p>Попробуйте произнести или написать название иначе.</p></div>`;
-            return;
-        }
-
-        results.forEach(res => {
-            const prettyTitle = extractTitle(res.text);
-            const item = document.createElement('div');
-            item.className = 'result-item';
-            item.innerHTML = `
-                <div class="prog-badge">
-                    <small>ПРОГРАММА</small>
-                    № ${res.progNum}
-                </div>
-                <div class="result-content">
-                    <h3>${res.num}. ${prettyTitle}</h3>
-                    <p class="prog-name">${res.progName}</p>
-                </div>
-            `;
-            resultsDiv.appendChild(item);
+            if (waitingForFirstTrack) {
+                // пропускаем "Аранжировки..." между заголовком и первым треком
+            } else if (currentTrackNum) {
+                currentTrackText += " " + trimmed;
+            }
         });
-    }
+        saveTrack();
 
-    // === ОТРИСОВКА СПИСКА ПРОГРАММ ===
-    function renderPrograms() {
-        const grid = document.getElementById('programs-grid');
-        grid.innerHTML = '';
-        programs.forEach(prog => {
-            const card = document.createElement('div');
-            card.className = 'program-card';
-            card.innerHTML = `
+        document.getElementById('stats').textContent = `Загружено программ: ${programs.length} | Всего произведений: ${index.length}`;
+
+        // === ПОИСК ===
+        function normalize(str) {
+            return str
+                .toLowerCase()
+                .replace(/ё/g, 'е')
+                .replace(/[^a-zа-я0-9\s]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function search(query) {
+            const q = normalize(query);
+            if (!q || q.length < 2) return [];
+            return index.filter(item => normalize(item.text).includes(q));
+        }
+
+        // === ИЗВЛЕЧЕНИЕ ЧИСТОГО НАЗВАНИЯ ===
+        function extractTitle(text) {
+            // 1. Отсекаем хвост — указание исполнителя
+            let cleaned = text.replace(
+                /\s*(?:Солист[ка]?\s*[–\-].*|Исполняет.*|Исполняют.*|Дуэт\s*[–\-].*|Скрипка.*|Соло\s*[–\-].*|Эстрадный\s+певец.*|Эстрадная\s+певица.*|Трио\s+(?:солистов|теноров).*|Вокальный\s+ансамбль.*)$/i, ''
+            );
+
+            // 2. Удаляем номер трека в начале
+            cleaned = cleaned.replace(/^\d+\.\s*/, '');
+
+            // 3. Находим все последовательности заглавных букв длиной 2+
+            const matches = [];
+            const regex = /[А-ЯA-ZЁ][А-ЯA-ZЁ0-9'\-]*/g;
+            let match;
+            while ((match = regex.exec(cleaned)) !== null) {
+                if (match[0].length >= 2) {
+                    matches.push({text: match[0], index: match.index});
+                }
+            }
+
+            if (matches.length === 0) {
+                return cleaned.substring(0, 60);
+            }
+
+            // 4. Берём первое совпадение, которое не является техническим обозначением
+            const technicalTerms = ['MOLL', 'DUR', 'OP', 'NR', 'NO', 'KV'];
+            let titleMatch = matches.find(m => !technicalTerms.includes(m.text.toUpperCase()));
+
+            if (!titleMatch) {
+                titleMatch = matches[0];
+            }
+
+            // 5. Проверяем, есть ли перед названием короткое заглавное слово (1 буква) — "О,", "Я"
+            const before = cleaned.substring(0, titleMatch.index).trim();
+            const shortWordMatch = before.match(/\b([А-ЯA-ZЁ])\s*$/);
+            let startPos = titleMatch.index;
+            if (shortWordMatch) {
+                startPos = before.lastIndexOf(shortWordMatch[1]);
+            }
+
+            // 6. Берём всё от startPos до конца
+            let result = cleaned.substring(startPos);
+            result = result.replace(/\)+$/, '').trim();
+            result = result.replace(/\s+/g, ' ').trim();
+
+            return result || cleaned.substring(0, 60);
+        }
+
+        // === ОТРИСОВКА РЕЗУЛЬТАТОВ ПОИСКА ===
+        function renderResults(results, query) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (!query || query.length < 2) return;
+
+            if (results.length === 0) {
+                resultsDiv.innerHTML = `<div class="result-item" style="border-left-color: #ff4757;"><h3>Ничего не найдено</h3><p>Попробуйте произнести или написать название иначе.</p></div>`;
+                return;
+            }
+
+            results.forEach(res => {
+                const prettyTitle = extractTitle(res.text);
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `
+        <div class="prog-badge" data-prog="${res.progNum}">
+            <small>ПРОГРАММА</small>
+            № ${res.progNum}
+        </div>
+        <div class="result-content">
+            <h3>${res.num}. ${prettyTitle}</h3>
+            <p class="prog-name">${res.progName}</p>
+        </div>
+    `;
+                // Клик по бейджу → открыть программу
+                item.querySelector('.prog-badge').addEventListener('click', () => {
+                    // Переключаем вкладку на "Программы"
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelector('.tab[data-tab="programs"]').classList.add('active');
+                    document.getElementById('tab-search').classList.add('hidden');
+                    document.getElementById('tab-programs').classList.remove('hidden');
+                    // Открываем нужную программу
+                    openProgram(res.progNum);
+                    // Прокручиваем наверх
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                });
+                resultsDiv.appendChild(item);
+            });
+        }
+
+        // === ОТРИСОВКА СПИСКА ПРОГРАММ ===
+        function renderPrograms() {
+            const grid = document.getElementById('programs-grid');
+            grid.innerHTML = '';
+            programs.forEach(prog => {
+                const card = document.createElement('div');
+                card.className = 'program-card';
+                card.innerHTML = `
                 <div class="card-num">${prog.num}</div>
                 <div class="card-title">${prog.name}</div>
             `;
-            card.addEventListener('click', () => openProgram(prog.num));
-            grid.appendChild(card);
-        });
-    }
+                card.addEventListener('click', () => openProgram(prog.num));
+                grid.appendChild(card);
+            });
+        }
 
-    // === ОТКРЫТИЕ ПРОГРАММЫ ===
-    function openProgram(progNum) {
-        const prog = programs.find(p => p.num === progNum);
-        if (!prog) return;
+        // === ОТКРЫТИЕ ПРОГРАММЫ ===
+        function openProgram(progNum) {
+            const prog = programs.find(p => p.num === progNum);
+            if (!prog) return;
 
-        document.getElementById('programs-list').classList.add('hidden');
-        document.getElementById('tracks-list').classList.remove('hidden');
+            document.getElementById('programs-list').classList.add('hidden');
+            document.getElementById('tracks-list').classList.remove('hidden');
 
-        const header = document.getElementById('tracks-header');
-        header.innerHTML = `<h2>Программа №${prog.num}</h2><p>${prog.name}</p>`;
+            const header = document.getElementById('tracks-header');
+            header.innerHTML = `<h2>Программа №${prog.num}</h2><p>${prog.name}</p>`;
 
-        const container = document.getElementById('tracks-container');
-        container.innerHTML = '';
-        prog.tracks.forEach(track => {
-            const title = extractTitle(track.text);
-            const item = document.createElement('div');
-            item.className = 'track-item';
-            item.innerHTML = `
+            const container = document.getElementById('tracks-container');
+            container.innerHTML = '';
+            prog.tracks.forEach(track => {
+                const title = extractTitle(track.text);
+                const item = document.createElement('div');
+                item.className = 'track-item';
+                item.innerHTML = `
                 <div class="track-num">${track.num}</div>
                 <div class="track-title">${title}</div>
             `;
-            container.appendChild(item);
-        });
-    }
-
-    // === НАВИГАЦИЯ ===
-    document.getElementById('backBtn').addEventListener('click', () => {
-        document.getElementById('tracks-list').classList.add('hidden');
-        document.getElementById('programs-list').classList.remove('hidden');
-    });
-
-    // === ВКЛАДКИ ===
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            const tabName = tab.dataset.tab;
-            document.getElementById('tab-search').classList.toggle('hidden', tabName !== 'search');
-            document.getElementById('tab-programs').classList.toggle('hidden', tabName !== 'programs');
-            // Сброс состояния при переключении на программы
-            if (tabName === 'programs') {
-                document.getElementById('tracks-list').classList.add('hidden');
-                document.getElementById('programs-list').classList.remove('hidden');
-            }
-        });
-    });
-
-    // === ГОЛОСОВОЙ ВВОД ===
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const micBtn = document.getElementById('micBtn');
-    const status = document.getElementById('status');
-    const recognizedText = document.getElementById('recognizedText');
-    const textInput = document.getElementById('textInput');
-    const warning = document.getElementById('warning');
-
-    let recognition;
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isSecure = window.isSecureContext;
-
-    if (SpeechRecognition && isSecure) {
-        recognition = new SpeechRecognition();
-        recognition.lang = 'ru-RU';
-        recognition.interimResults = false;
-        recognition.continuous = false;
-
-        recognition.onstart = () => {
-            status.textContent = 'Слушаю вас...';
-            micBtn.classList.add('listening');
-        };
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            recognizedText.textContent = `"${transcript}"`;
-            textInput.value = transcript;
-            const results = search(transcript);
-            renderResults(results, transcript);
-            status.textContent = 'Готов к поиску';
-            micBtn.classList.remove('listening');
-        };
-
-        recognition.onerror = (event) => {
-            status.textContent = 'Ошибка: ' + event.error;
-            micBtn.classList.remove('listening');
-        };
-
-        recognition.onend = () => {
-            micBtn.classList.remove('listening');
-            if (status.textContent === 'Слушаю вас...') {
-                status.textContent = 'Готов к поиску';
-            }
-        };
-
-        micBtn.addEventListener('click', () => {
-            if (micBtn.classList.contains('listening')) {
-                recognition.stop();
-            } else {
-                recognizedText.textContent = 'Здесь появится распознанный текст...';
-                try { recognition.start(); } catch(e) {}
-            }
-        });
-    } else {
-        micBtn.style.opacity = '0.4';
-        micBtn.style.cursor = 'not-allowed';
-        let reason = '';
-        if (!isSecure) {
-            reason = '⚠️ Голосовой ввод работает только по HTTPS.<br><br>';
-        } else if (isIOS) {
-            reason = '⚠️ Safari не поддерживает голосовой ввод в браузере.<br><br>';
+                container.appendChild(item);
+            });
         }
-        warning.innerHTML = `
+
+        // === НАВИГАЦИЯ ===
+        document.getElementById('backBtn').addEventListener('click', () => {
+            document.getElementById('tracks-list').classList.add('hidden');
+            document.getElementById('programs-list').classList.remove('hidden');
+        });
+
+        // === ВКЛАДКИ ===
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const tabName = tab.dataset.tab;
+                document.getElementById('tab-search').classList.toggle('hidden', tabName !== 'search');
+                document.getElementById('tab-programs').classList.toggle('hidden', tabName !== 'programs');
+                // Сброс состояния при переключении на программы
+                if (tabName === 'programs') {
+                    document.getElementById('tracks-list').classList.add('hidden');
+                    document.getElementById('programs-list').classList.remove('hidden');
+                }
+            });
+        });
+
+        // === ГОЛОСОВОЙ ВВОД ===
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const micBtn = document.getElementById('micBtn');
+        const status = document.getElementById('status');
+        const recognizedText = document.getElementById('recognizedText');
+        const textInput = document.getElementById('textInput');
+        const warning = document.getElementById('warning');
+
+        let recognition;
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        const isSecure = window.isSecureContext;
+
+        if (SpeechRecognition && isSecure) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ru-RU';
+            recognition.interimResults = false;
+            recognition.continuous = false;
+
+            recognition.onstart = () => {
+                status.textContent = 'Слушаю вас...';
+                micBtn.classList.add('listening');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                recognizedText.textContent = `"${transcript}"`;
+                textInput.value = transcript;
+                const results = search(transcript);
+                renderResults(results, transcript);
+                status.textContent = 'Готов к поиску';
+                micBtn.classList.remove('listening');
+            };
+
+            recognition.onerror = (event) => {
+                status.textContent = 'Ошибка: ' + event.error;
+                micBtn.classList.remove('listening');
+            };
+
+            recognition.onend = () => {
+                micBtn.classList.remove('listening');
+                if (status.textContent === 'Слушаю вас...') {
+                    status.textContent = 'Готов к поиску';
+                }
+            };
+
+            micBtn.addEventListener('click', () => {
+                if (micBtn.classList.contains('listening')) {
+                    recognition.stop();
+                } else {
+                    recognizedText.textContent = 'Здесь появится распознанный текст...';
+                    try {recognition.start();} catch (e) { }
+                }
+            });
+        } else {
+            micBtn.style.opacity = '0.4';
+            micBtn.style.cursor = 'not-allowed';
+            let reason = '';
+            if (!isSecure) {
+                reason = '⚠️ Голосовой ввод работает только по HTTPS.<br><br>';
+            } else if (isIOS) {
+                reason = '⚠️ Safari не поддерживает голосовой ввод в браузере.<br><br>';
+            }
+            warning.innerHTML = `
             ${reason}
             <div style="background: rgba(46, 213, 115, 0.15); border: 1px solid #2ed573;
                         padding: 12px; border-radius: 10px; margin-top: 10px; text-align: left;">
@@ -1333,17 +1432,18 @@ Cолист - тенор
                 Нажмите на текстовое поле 👇 → на клавиатуре нажмите <strong>🎤</strong> → говорите.
             </div>
         `;
-    }
+        }
 
-    textInput.addEventListener('input', (e) => {
-        const val = e.target.value;
-        recognizedText.textContent = val ? `"${val}"` : 'Здесь появится распознанный текст...';
-        const results = search(val);
-        renderResults(results, val);
-    });
+        textInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            recognizedText.textContent = val ? `"${val}"` : 'Здесь появится распознанный текст...';
+            const results = search(val);
+            renderResults(results, val);
+        });
 
-    // Инициализация
-    renderPrograms();
-</script>
+        // Инициализация
+        renderPrograms();
+    </script>
 </body>
+
 </html>
