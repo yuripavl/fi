@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск произведения.....</title>
+    <title>Поиск произведения</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
         * { box-sizing: border-box; }
@@ -1124,33 +1124,51 @@ Cолист - тенор
 
     // === ИЗВЛЕЧЕНИЕ ЧИСТОГО НАЗВАНИЯ ===
     function extractTitle(text) {
-        let cleaned = text.replace(
-            /\s*(?:Солист[ка]?\s*[–\-].*|Исполняет.*|Исполняют.*|Дуэт\s*[–\-].*|Скрипка.*|Соло\s*[–\-].*|Эстрадный\s+певец.*|Эстрадная\s+певица.*|Трио\s+(?:солистов|теноров).*|Вокальный\s+ансамбль.*)$/i, ''
-        );
-        cleaned = cleaned.replace(/^\d+\.\s*/, '');
+    // 1. Отсекаем хвост — указание исполнителя
+    let cleaned = text.replace(
+        /\s*(?:Солист[ка]?\s*[–\-].*|Исполняет.*|Исполняют.*|Дуэт\s*[–\-].*|Скрипка.*|Соло\s*[–\-].*|Эстрадный\s+певец.*|Эстрадная\s+певица.*|Трио\s+(?:солистов|теноров).*|Вокальный\s+ансамбль.*)$/i, ''
+    );
 
-        const regex = /\b([А-ЯA-ZЁ]{2,}[А-ЯA-ZЁ0-9'\-]*)\b/g;
-        let match;
-        let startPos = -1;
-        while ((match = regex.exec(cleaned)) !== null) {
-            startPos = match.index;
-            break;
+    // 2. Удаляем номер трека в начале
+    cleaned = cleaned.replace(/^\d+\.\s*/, '');
+
+    // 3. Находим все последовательности заглавных букв длиной 2+
+    const matches = [];
+    const regex = /[А-ЯA-ZЁ][А-ЯA-ZЁ0-9'\-]*/g;
+    let match;
+    while ((match = regex.exec(cleaned)) !== null) {
+        if (match[0].length >= 2) {
+            matches.push({ text: match[0], index: match.index });
         }
-
-        if (startPos > 0) {
-            const before = cleaned.substring(0, startPos).trim();
-            const shortWordMatch = before.match(/\b([А-ЯA-ZЁ])\s*$/);
-            if (shortWordMatch) {
-                startPos = before.lastIndexOf(shortWordMatch[1]);
-            }
-            cleaned = cleaned.substring(startPos);
-        }
-
-        cleaned = cleaned.replace(/\)+$/, '').trim();
-        cleaned = cleaned.replace(/\s+/g, ' ').trim();
-
-        return cleaned || text.substring(0, 60);
     }
+
+    if (matches.length === 0) {
+        return cleaned.substring(0, 60);
+    }
+
+    // 4. Берём первое совпадение, которое не является техническим обозначением
+    const technicalTerms = ['MOLL', 'DUR', 'OP', 'NR', 'NO', 'KV'];
+    let titleMatch = matches.find(m => !technicalTerms.includes(m.text.toUpperCase()));
+    
+    if (!titleMatch) {
+        titleMatch = matches[0];
+    }
+
+    // 5. Проверяем, есть ли перед названием короткое заглавное слово (1 буква) — "О,", "Я"
+    const before = cleaned.substring(0, titleMatch.index).trim();
+    const shortWordMatch = before.match(/\b([А-ЯA-ZЁ])\s*$/);
+    let startPos = titleMatch.index;
+    if (shortWordMatch) {
+        startPos = before.lastIndexOf(shortWordMatch[1]);
+    }
+
+    // 6. Берём всё от startPos до конца
+    let result = cleaned.substring(startPos);
+    result = result.replace(/\)+$/, '').trim();
+    result = result.replace(/\s+/g, ' ').trim();
+
+    return result || cleaned.substring(0, 60);
+}
 
     // === ОТРИСОВКА РЕЗУЛЬТАТОВ ПОИСКА ===
     function renderResults(results, query) {
