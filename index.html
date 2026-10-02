@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск произведения</title>
+    <title>Поиск произведения по названию</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -129,7 +129,7 @@
 <body>
 
 <div class="container">
-    <h1> Поиск произведения</h1>
+    <h1>Поиск произведения</h1>
     <p>Нажмите на микрофон и назовите произведение</p>
     
     <button class="mic-btn" id="micBtn">🎤</button>
@@ -967,7 +967,10 @@ Cолист - тенор
             /\s*(?:Солист[ка]?\s*[–\-].*|Исполняет.*|Исполняют.*|Дуэт\s*[–\-].*|Скрипка.*|Соло\s*[–\-].*|Эстрадный\s+певец.*|Эстрадная\s+певица.*|Трио\s+(?:солистов|теноров).*|Вокальный\s+ансамбль.*)$/i, ''
         );
 
-        // 2. Ищем первое полностью заглавное слово длиной 2+ (это начало названия)
+        // 2. Удаляем номер трека в начале, если он есть (например "14. " или "3. ")
+        cleaned = cleaned.replace(/^\d+\.\s*/, '');
+
+        // 3. Ищем первое полностью заглавное слово (2+ букв)
         const regex = /\b([А-ЯA-ZЁ]{2,}[А-ЯA-ZЁ0-9'\-]*)\b/g;
         let match;
         let startPos = -1;
@@ -977,7 +980,7 @@ Cолист - тенор
         }
 
         if (startPos > 0) {
-            // 3. Проверяем, есть ли перед найденным словом короткое заглавное слово (1 буква) — например "О," или "Я"
+            // Проверяем, есть ли перед названием короткое заглавное слово (1 буква) — "О,", "Я"
             const before = cleaned.substring(0, startPos).trim();
             const shortWordMatch = before.match(/\b([А-ЯA-ZЁ])\s*$/);
             if (shortWordMatch) {
@@ -986,7 +989,10 @@ Cолист - тенор
             cleaned = cleaned.substring(startPos);
         }
 
-        // 4. Чистим лишние пробелы
+        // 4. Удаляем лишние закрывающие скобки в конце
+        cleaned = cleaned.replace(/\)+$/, '').trim();
+
+        // 5. Чистим пробелы
         cleaned = cleaned.replace(/\s+/g, ' ').trim();
 
         return cleaned || text.substring(0, 60);
@@ -1041,7 +1047,7 @@ Cолист - тенор
         recognition.continuous = false;
 
         recognition.onstart = () => {
-            status.textContent = '🎧 Слушаю вас...';
+            status.textContent = 'Слушаю вас...';
             micBtn.classList.add('listening');
         };
 
@@ -1062,7 +1068,7 @@ Cолист - тенор
 
         recognition.onend = () => {
             micBtn.classList.remove('listening');
-            if (status.textContent === '🎧 Слушаю вас...') {
+            if (status.textContent === 'Слушаю вас...') {
                 status.textContent = 'Готов к поиску';
             }
         };
@@ -1089,7 +1095,7 @@ Cолист - тенор
             <div style="background: rgba(46, 213, 115, 0.15); border: 1px solid #2ed573;
                         padding: 12px; border-radius: 10px; margin-top: 10px; text-align: left;">
                 <strong style="color: #7bed9f;">📱 Диктовка на iPhone:</strong><br>
-                Нажмите на текстовое поле 👇 → на клавиатуре нажмите <strong>🎤</strong> → говорите.
+                Нажмите на текстовое поле 👇 → на клавиатуре нажмите <strong></strong> → говорите.
             </div>
         `;
     }
