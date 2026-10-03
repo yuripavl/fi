@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Поиск произведения по голосу</title>
+    <title>Поиск произведения </title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -82,17 +82,42 @@
             text-align: center;
             font-size: 14px;
         }
+        .search-wrap {
+            position: relative;
+            margin-bottom: 15px;
+        }
         .search-box {
             width: 100%;
-            padding: 12px;
+            padding: 12px 42px 12px 12px;
             border-radius: 10px;
             border: 1px solid rgba(255,255,255,0.3);
             background: rgba(255,255,255,0.1);
             color: white;
             font-size: 16px;
-            margin-bottom: 15px;
         }
         .search-box::placeholder { color: rgba(255,255,255,0.6); }
+        .clear-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            padding: 0;
+            line-height: 1;
+        }
+        .clear-btn:hover { background: rgba(255, 71, 87, 0.7); }
+        .clear-btn.visible { display: flex; }
         .result-item {
             background: rgba(255,255,255,0.15);
             padding: 12px;
@@ -249,7 +274,10 @@
         <button class="mic-btn" id="micBtn">🎤</button>
         <div class="status" id="status">Готов к поиску</div>
         <div class="recognized-text" id="recognizedText">Здесь появится распознанный текст...</div>
-        <input type="text" class="search-box" id="textInput" placeholder="Или введите название вручную...">
+        <div class="search-wrap">
+            <input type="text" class="search-box" id="textInput" placeholder="Или введите название вручную...">
+            <button class="clear-btn" id="clearBtn" title="Очистить поиск" aria-label="Очистить поиск">✕</button>
+        </div>
         <div class="results" id="results"></div>
         <div class="warning" id="warning"></div>
         <div class="stats" id="stats"></div>
@@ -751,8 +779,7 @@
 23. ОРКЕСТРОВАЯ ФАНТАЗИЯ "СДЕЛАНО В СССР"
 Дмитрий Капырин`;
 
-    // === ПАРСЕР НОВОГО ФОРМАТА ===
-    // Строка "N. Название" -> название; следующая строка -> автор
+    // === ПАРСЕР: строка "N. Название" -> название; следующая строка -> автор ===
     const index = [];
     const programs = [];
     const lines = rawData.split('\n');
@@ -778,7 +805,6 @@
         const trimmed = line.trim();
         if (!trimmed) return;
 
-        // Заголовок программы
         const progMatch = trimmed.match(/^№\s*(\d+)\.\s*(.*)/);
         if (progMatch) {
             saveTrack();
@@ -789,7 +815,6 @@
             return;
         }
 
-        // Трек: "N. Название"
         const trackMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
         if (trackMatch) {
             saveTrack();
@@ -799,7 +824,6 @@
             return;
         }
 
-        // Всё остальное до следующего трека/программы — автор
         if (currentTrackNum) {
             currentAuthor += (currentAuthor ? " " : "") + trimmed;
         }
@@ -924,6 +948,21 @@
         });
     });
 
+    // === КРЕСТИК ОЧИСТКИ ПОИСКА ===
+    const clearBtn = document.getElementById('clearBtn');
+
+    function updateClearBtn(val) {
+        clearBtn.classList.toggle('visible', val.length > 0);
+    }
+
+    clearBtn.addEventListener('click', () => {
+        textInput.value = '';
+        recognizedText.textContent = 'Здесь появится распознанный текст...';
+        document.getElementById('results').innerHTML = '';
+        updateClearBtn('');
+        textInput.focus();
+    });
+
     // === ГОЛОСОВОЙ ВВОД ===
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const micBtn = document.getElementById('micBtn');
@@ -951,6 +990,7 @@
             const transcript = event.results[0][0].transcript;
             recognizedText.textContent = `"${transcript}"`;
             textInput.value = transcript;
+            updateClearBtn(transcript);
             renderResults(search(transcript), transcript);
             status.textContent = 'Готов к поиску';
             micBtn.classList.remove('listening');
@@ -998,6 +1038,7 @@
     textInput.addEventListener('input', (e) => {
         const val = e.target.value;
         recognizedText.textContent = val ? `"${val}"` : 'Здесь появится распознанный текст...';
+        updateClearBtn(val);
         renderResults(search(val), val);
     });
 
