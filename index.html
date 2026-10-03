@@ -120,40 +120,11 @@
         .clear-btn.visible { display: flex; }
         .result-item {
             background: rgba(255,255,255,0.15);
-            padding: 12px;
+            padding: 12px 15px;
             border-radius: 10px;
             margin-bottom: 10px;
             border-left: 4px solid #2ed573;
-            display: flex;
-            gap: 12px;
-            align-items: center;
         }
-        .prog-badge {
-            background: linear-gradient(135deg, #ffd32a, #ff9f1a);
-            color: #1e3c72;
-            font-weight: bold;
-            font-size: 20px;
-            padding: 8px 12px;
-            border-radius: 10px;
-            min-width: 60px;
-            text-align: center;
-            flex-shrink: 0;
-            line-height: 1;
-            cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
-        }
-        .prog-badge:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(255, 211, 42, 0.5); }
-        .prog-badge:active { transform: scale(0.97); }
-        .prog-badge small {
-            display: block;
-            font-size: 9px;
-            font-weight: normal;
-            margin-bottom: 2px;
-            opacity: 0.8;
-            letter-spacing: 1px;
-        }
-        .result-content { flex: 1; min-width: 0; }
         .result-item h3 {
             margin: 0 0 5px 0;
             color: #7bed9f;
@@ -167,6 +138,22 @@
             margin: 0;
             font-style: italic;
         }
+        .prog-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: #ffd32a;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            cursor: pointer;
+            border-bottom: 1px dashed rgba(255, 211, 42, 0.6);
+            padding-bottom: 1px;
+            transition: color 0.2s;
+            user-select: none;
+        }
+        .prog-link:hover { color: #ffe58a; border-bottom-color: #ffe58a; }
+        .prog-link:active { opacity: 0.7; }
         .warning { color: #ff6b81; font-size: 14px; margin-top: 10px; text-align: center; }
         .stats { font-size: 12px; opacity: 0.7; margin-top: 10px; text-align: center; }
         .programs-grid {
@@ -848,7 +835,7 @@
         return index.filter(item => normalize(item.title).includes(q));
     }
 
-    // === РЕЗУЛЬТАТЫ: строка 1 — название, строка 2 — автор ===
+    // === РЕЗУЛЬТАТЫ: название, автор, строка-ссылка на программу ===
     function renderResults(results, query) {
         const resultsDiv = document.getElementById('results');
         resultsDiv.innerHTML = '';
@@ -856,7 +843,7 @@
         if (!query || query.length < 2) return;
 
         if (results.length === 0) {
-            resultsDiv.innerHTML = `<div class="result-item" style="border-left-color: #ff4757;"><h3>Ничего не найдено</h3><p class="author-name">Попробуйте произнести или написать название иначе.</p></div>`;
+            resultsDiv.innerHTML = `<div class="result-item"><h3>Ничего не найдено</h3><p class="author-name">Попробуйте произнести или написать название иначе.</p></div>`;
             return;
         }
 
@@ -864,16 +851,11 @@
             const item = document.createElement('div');
             item.className = 'result-item';
             item.innerHTML = `
-                <div class="prog-badge" data-prog="${res.progNum}">
-                    <small>ПРОГРАММА</small>
-                    № ${res.progNum}
-                </div>
-                <div class="result-content">
-                    <h3>${res.num}. ${res.title}</h3>
-                    ${res.author ? `<p class="author-name">${res.author}</p>` : ''}
-                </div>
+                <h3>${res.num}. ${res.title}</h3>
+                ${res.author ? `<p class="author-name">${res.author}</p>` : ''}
+                <span class="prog-link">№ ${res.progNum}. ${res.progName}</span>
             `;
-            item.querySelector('.prog-badge').addEventListener('click', () => {
+            item.querySelector('.prog-link').addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelector('.tab[data-tab="programs"]').classList.add('active');
                 document.getElementById('tab-search').classList.add('hidden');
