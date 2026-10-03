@@ -199,8 +199,13 @@
             margin-bottom: 15px;
             text-align: center;
         }
-        .tracks-header h2 { margin: 0 0 5px 0; font-size: 20px; }
-        .tracks-header p { margin: 0; font-size: 18px; opacity: 1; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tracks-header h2 {
+            margin: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.3;
+        }
         .back-btn {
             background: rgba(255,255,255,0.15);
             border: 1px solid rgba(255,255,255,0.3);
@@ -892,7 +897,7 @@
         document.getElementById('tracks-list').classList.remove('hidden');
 
         document.getElementById('tracks-header').innerHTML =
-            `<h2>Программа №${prog.num}</h2><p>${prog.name}</p>`;
+            `<h2>№ ${prog.num}. ${prog.name}</h2>`;
 
         const container = document.getElementById('tracks-container');
         container.innerHTML = '';
